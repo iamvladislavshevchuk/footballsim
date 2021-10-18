@@ -1,0 +1,52 @@
+.Button {
+    display: block;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 0;
+    border-radius: 4px;
+    height: 40px;
+    font-size: 16px;
+    padding: 0 12px;
+    font-weight: 500;
+    color: #002993;
+    cursor: pointer;
+    transition: .3s ease-out;
+
+    &:hover {
+        background: #C8D3EE;
+    }
+}
+
+.Button.secondary {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+
+    &:hover {
+        background: transparent;
+        border: 2px solid #C8D3EE;
+        color: #C8D3EE;
+    }
+}
+
+.Button.tertiary {
+    background: transparent;
+    color: #C2E9FF;
+
+    &:hover {
+        background: transparent;
+        color: #fff;
+    }
+
+    &:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+
+        &:hover {
+            color: #C2E9FF;
+        }
+    }
+}
