@@ -1,6 +1,9 @@
 # Football Simulator
 It's an open-source Laravel & React (TypeScipt) project for football simulation.
 
+# Demo
+Demo should be available here: https://footballsim.ai-40.com.
+
 ## Features
 1) Fixture generator for any number of teams.
 2) Game simulation based on team's strength.
