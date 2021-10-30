@@ -1,26 +1,19 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\GameSimulation;
 
 use App\Models\Team;
+use App\Interfaces\GameSimulationInterface;
 
 /**
  * Simulates the game between two teams.
  */
-class GameSimulationService {
-    public Team $home;
-    public Team $away;
-
-    public function __construct(Team $home, Team $away)
-    {
-        $this->home = $home;
-        $this->away = $away;
-    }
-    
-    public function simulate(): array
+class SimpleGameSimulationService implements GameSimulationInterface 
+{
+    public function simulate(Team $home, Team $away): array
     {
         $total = $this->calcTotalScore();
-        $scored = $this->calcHomeTeamScore($total);
+        $scored = $this->calcHomeTeamScore($home, $away, $total);
         $missed = $total - $scored;
         return [$scored, $missed];
     }
@@ -36,10 +29,10 @@ class GameSimulationService {
     /**
      * Calculates how many goals the home team will score based on its strength.
      */
-    protected function calcHomeTeamScore(int $total): int
+    protected function calcHomeTeamScore(Team $home, Team $away, int $total): int
     {
         $result = 0;
-        $strength = $this->home->strength / $this->away->strength;
+        $strength = $home->strength / $away->strength;  // 8 / 4 = 2
 
         // We assume every attack ends with a goal. 
         // If a home team doesn't score, an away team scores.

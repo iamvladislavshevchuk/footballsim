@@ -1,30 +1,40 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Prediction;
 
 use App\Exceptions\PredictionNotPossibleException;
 use App\Http\Resources\TeamResource;
+use App\Interfaces\GameSimulationInterface;
+use App\Interfaces\PredictionInterface;
 use App\Models\Simulation;
+use App\Services\StatisticsService;
 use Illuminate\Support\Collection;
 
 /**
  * Predicts the results of not simulated games.
  */
-class PredictionService {
-    public Simulation $simulation;
+class PredictionBySimulationService implements PredictionInterface 
+{
+    protected GameSimulationInterface $simulator;
+    protected StatisticsService $statistics;
 
-    public function __construct(Simulation $simulation) {
-        $this->simulation = $simulation;
+    public function __construct(GameSimulationInterface $simulator, StatisticsService $statistics) 
+    {
+        $this->simulator = $simulator;
+        $this->statistics = $statistics;
     }
 
-    public function predict(): array
+    public function predict(Simulation $simulation): array
     {
-        if (! $this->simulation->games()->exists())
+        if (! $simulation->games()->exists())
             throw new PredictionNotPossibleException('Simulation doesn\'t contain games.');
 
-        $games = $this->simulation->games()->simulated()->get();
-        $empty = $this->simulation->games()->empty()->get();
-        return $this->predictBySimulation($games, $empty, 100);
+        $n = 100;
+        $games = $simulation->games()->simulated()->get();
+        $empty = $simulation->games()->empty()->get();
+
+        $prediction = $this->predictBySimulation($games, $empty, $n);
+        return $this->format($simulation, $prediction, $n);
     }
 
     /**
@@ -39,37 +49,33 @@ class PredictionService {
             $frequency[] = $winner;
         }
 
-        $teams = array_count_values($frequency);
-
-        return $this->format($teams, $n);
+        return array_count_values($frequency);
     }
 
     /**
      * Simulates the empty games and returns the winner of the simulation.
      */
-    public function simulate(Collection $games, Collection $empty): int
+    protected function simulate(Collection $games, Collection $empty): int
     {
         $simulated = collect([]);
 
         $empty->loadMissing('away', 'home');
         foreach ($empty as $game) {
-            $service = new GameSimulationService($game->home, $game->away);
-            [$home_score, $away_score] = $service->simulate();
+            [$home_score, $away_score] = $this->simulator->simulate($game->home, $game->away);
             $game->home_score = $home_score;
             $game->away_score = $away_score;
             $simulated->push($game);
         }
 
         $total = $games->merge($simulated);
-        $statistics = new StatisticsService($total);
-        return $statistics->winner()['team']['id'];
+        return $this->statistics->winner($total)['team']['id'];
     }
 
-    protected function format(array $frequency, int $n): array
+    protected function format(Simulation $simulation, array $frequency, int $n): array
     {
         $result = [];
 
-        foreach ($this->simulation->teams as $team) {
+        foreach ($simulation->teams as $team) {
             $result[] = [
                 'team' => new TeamResource($team),
                 'chance' => (double) ($frequency[$team->id] ?? 0) / $n

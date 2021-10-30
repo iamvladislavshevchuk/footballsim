@@ -4,29 +4,23 @@ namespace App\Services;
 
 use App\Constants\Points;
 use App\Http\Resources\TeamResource;
-use App\Models\Game;
 use App\Models\Team;
+use App\Models\Game;
 use Illuminate\Support\Collection;
 
 /**
  * Gathers the statistics based on matches.
  */
-class StatisticsService {
+class StatisticsService
+{    
     /**
-     * @var \Illuminate\Database\Eloquent\Collection<mixed, Game> $games
+     * @param \Illuminate\Database\Eloquent\Collection<mixed, Game> $games
      */
-    public $games;
-
-    public function __construct(Collection $games)
-    {
-        $this->games = $games;
-    }
-    
-    public function leaderboard(): Collection
+    public function leaderboard($games): Collection
     {
         $result = collect([]);
 
-        foreach ($this->games as $game) {
+        foreach ($games as $game) {
             $home = $game->home_id;
             $away = $game->away_id;
 
@@ -55,12 +49,9 @@ class StatisticsService {
         })->values();
     }
 
-    /**
-     * Returns the statistics of the winner.
-     */
-    public function winner(): array
+    public function winner($games): array
     {
-        return $this->leaderboard()->first();
+        return $this->leaderboard($games)->first();
     }
 
     /**

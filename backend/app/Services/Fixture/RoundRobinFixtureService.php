@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Fixture;
 
+use App\Models\Team;
+use App\Interfaces\FixtureInterface;
 use Illuminate\Support\Collection;
 
 /**
  * Creates a fixture for any number of teams.
  */
-class FixtureService {
-    public function generate(Collection $teams): Collection
+class RoundRobinFixtureService implements FixtureInterface 
+{
+    /**
+     * @param \Illuminate\Database\Eloquent\Collection<mixed, Team> $teams
+     */
+    public function generate($teams): Collection
     {
         $half = $this->matchups($teams);
         $reversed = $this->reverse($half);

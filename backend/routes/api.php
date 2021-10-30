@@ -4,7 +4,9 @@ use App\Http\Controllers\DefaultTeamController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\SimulationController;
 use App\Http\Controllers\SimulationPredictionController;
+use App\Http\Controllers\SimulationSeasonController;
 use App\Http\Controllers\SimulationStatisticsController;
+use App\Http\Controllers\SimulationWeekController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,8 +26,8 @@ Route::patch('/games/{game}', [GameController::class, 'update']);
 Route::prefix('/simulations')->group(function() {
     Route::get('/{simulation}/prediction', [SimulationPredictionController::class, 'show']);
     Route::get('/{simulation}/statistics', [SimulationStatisticsController::class, 'show']);
-    Route::patch('/{simulation}/season', [SimulationController::class, 'season']);
-    Route::patch('/{simulation}/week', [SimulationController::class, 'week']);
+    Route::patch('/{simulation}/season', [SimulationSeasonController::class, 'update']);
+    Route::patch('/{simulation}/week', [SimulationWeekController::class, 'update']);
     Route::delete('/{simulation}', [SimulationController::class, 'destroy']);
     Route::post('/', [SimulationController::class, 'store']);
     Route::get('/', [SimulationController::class, 'show']);

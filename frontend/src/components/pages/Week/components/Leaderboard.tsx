@@ -14,13 +14,15 @@ export default function Leaderboard({ simulation, week }: Props) {
             <div className="table">
                 <table>
                     <thead>
-                        <th>Team</th>
-                        <th title="Played">P</th>
-                        <th title="Won">W</th>
-                        <th title="Draws">D</th>
-                        <th title="Lost">L</th>
-                        <th title="Goal Difference">GD</th>
-                        <th title="Points">PTS</th>
+                        <tr>
+                            <th>Team</th>
+                            <th title="Played">P</th>
+                            <th title="Won">W</th>
+                            <th title="Draws">D</th>
+                            <th title="Lost">L</th>
+                            <th title="Goal Difference">GD</th>
+                            <th title="Points">PTS</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {leaderboard.map(item => (

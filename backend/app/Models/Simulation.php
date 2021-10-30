@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Interfaces\FixtureInterface;
 use App\Services\FixtureService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,7 +43,9 @@ class Simulation extends Model
 
     public function generateFixture(): void
     {
-        $fixture = new FixtureService();
+        /** @var FixtureInterface */
+        $fixture = app()->make(FixtureInterface::class);
+
         $games = $fixture->generate($this->teams)->map(function($item) {
             $item['simulation_id'] = $this->id;
             return $item;

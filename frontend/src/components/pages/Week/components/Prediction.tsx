@@ -13,7 +13,7 @@ export default function Prediction({ simulation }: Props) {
             <h3>Predictions</h3>
             <div className="prediction__teams">
                 {prediction?.map(item => (
-                    <div className="prediction__team">
+                    <div className="prediction__team" key={item.team.id}>
                         <h3>{item.team.name}</h3>
                         <small>{Math.round(item.chance * 100)}%</small>
                     </div>

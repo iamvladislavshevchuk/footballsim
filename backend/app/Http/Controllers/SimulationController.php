@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SimulationStoreRequest;
-use App\Http\Requests\SimulationWeekRequest;
 use App\Http\Resources\SimulationResource;
 use App\Models\Simulation;
 
@@ -37,36 +36,5 @@ class SimulationController extends Controller
     public function destroy(Simulation $simulation): void
     {
         $simulation->delete();
-    }
-
-    /**
-     * Simulates games of the given week.
-     */
-    public function week(SimulationWeekRequest $request, Simulation $simulation): SimulationResource
-    {
-        $games = $simulation->games()->week($request->week)->with('home', 'away')->get();
-
-        foreach ($games as $game)
-            $game->simulate();
-
-        $simulation->update(['week' => $request->week]);
-
-        $simulation->loadMissing('games.home', 'games.away');
-        return new SimulationResource($simulation);
-    }
-
-    /**
-     * Simulates games of the whole season.
-     */
-    public function season(Simulation $simulation): SimulationResource
-    {
-        $games = $simulation->games()->empty()->with('home', 'away')->get();
-
-        foreach ($games as $game)
-            $game->simulate();
-
-        $simulation->update(['week' => $simulation->last_week]);
-        $simulation->loadMissing('games.home', 'games.away');
-        return new SimulationResource($simulation);
     }
 }

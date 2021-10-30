@@ -2,10 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Models\Game;
 use App\Models\Simulation;
 use App\Models\Team;
-use App\Services\GameSimulationService;
 use App\Services\StatisticsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,6 +14,8 @@ class StatisticsTest extends TestCase
     
     public function test_statistics_works_correctly()
     {
+        $service = new StatisticsService();
+
         $simulation = Simulation::create();
         $chelsea = Team::factory()->for($simulation)->create();
         $manchester = Team::factory()->for($simulation)->create();
@@ -38,13 +38,12 @@ class StatisticsTest extends TestCase
             'week' => 2
         ]);
 
-        $service = new StatisticsService($games);
-        $leaderboard = $service->leaderboard();
-
-        $winner = $service->winner();
-        $this->assertTrue($winner['team']['id'] === $chelsea->id, 'Chelsea should be a winner based on PTS');
-
+        $leaderboard = $service->leaderboard($games);
+        $winner = $service->winner($games);
         $chelseaStats = $leaderboard->first(fn($item) => $item['team']['id'] === $chelsea->id);
+        $manchesterStats = $leaderboard->first(fn($item) => $item['team']['id'] === $manchester->id);
+
+        $this->assertTrue($winner['team']['id'] === $chelsea->id, 'Chelsea should be a winner based on PTS');
         $this->assertTrue($chelseaStats['team']['id'] === $chelsea->id, 'Stats should have a team\'s id');
         $this->assertTrue($chelseaStats['PTS'] === 6, 'Chelsea should\'ve gained 6 points, but it gained '.$chelseaStats['PTS'].' points');
         $this->assertTrue($chelseaStats['W'] === 2, 'Chelsea should\'ve won 2 games, but it won '.$chelseaStats['W'].' games');
@@ -52,8 +51,6 @@ class StatisticsTest extends TestCase
         $this->assertTrue($chelseaStats['L'] === 0, 'Chelsea should\'ve lost 0 games, but it lost '.$chelseaStats['L'].' games');
         $this->assertTrue($chelseaStats['P'] === 2, 'Chelsea should\'ve played 2 games, but it played '.$chelseaStats['P'].' games');
         $this->assertTrue($chelseaStats['GD'] === 3, 'Chelsea should\'ve had 3 GD, but it has '.$chelseaStats['GD'].' GD');
-
-        $manchesterStats = $leaderboard->first(fn($item) => $item['team']['id'] === $manchester->id);
         $this->assertTrue($manchesterStats['PTS'] === 0, 'Manchester should\'ve gained 0 points, but it gained '.$chelseaStats['PTS'].' points');
         $this->assertTrue($manchesterStats['W'] === 0, 'Manchester should\'ve won 0 games, but it won '.$chelseaStats['W'].' games');
         $this->assertTrue($manchesterStats['D'] === 0, 'Manchester should\'ve drawn 0 games, but it drawn '.$chelseaStats['D'].' games');
@@ -64,6 +61,8 @@ class StatisticsTest extends TestCase
 
     public function test_goal_difference_is_taken_into_account_when_choosing_winner()
     {
+        $service = new StatisticsService();
+
         $simulation = Simulation::create();
         $chelsea = Team::factory()->for($simulation)->create();
         $manchester = Team::factory()->for($simulation)->create();
@@ -103,8 +102,7 @@ class StatisticsTest extends TestCase
             'week' => 4
         ]);
 
-        $service = new StatisticsService($games);
-        $winner = $service->winner();
+        $winner = $service->winner($games);
         $this->assertTrue($winner['team']['id'] === $manchester->id, 'Manchester should be a winner based on GD');
     }
 }

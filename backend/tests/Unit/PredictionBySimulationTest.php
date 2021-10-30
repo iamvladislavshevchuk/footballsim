@@ -4,21 +4,27 @@ namespace Tests\Unit;
 
 use App\Models\Simulation;
 use App\Models\Team;
-use App\Services\PredictionService;
+use App\Services\GameSimulation\SimpleGameSimulationService;
+use App\Services\Prediction\PredictionBySimulationService;
+use App\Services\StatisticsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class PredictionTest extends TestCase
+class PredictionBySimulationTest extends TestCase
 {
     use RefreshDatabase;
     
     public function test_prediction_service_returns_array_with_floats()
     {
+        $service = new PredictionBySimulationService(
+            new SimpleGameSimulationService(), 
+            new StatisticsService()
+        );
+
         $simulation = Simulation::create();
         Team::factory()->for($simulation)->count(4)->create();
         $simulation->generateFixture();
-        $service = new PredictionService($simulation);
-        $prediction = $service->predict();
+        $prediction = $service->predict($simulation);
         
         $this->assertTrue(count($prediction) > 0, 'The service should return at least one prediction');
 

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Services\GameSimulationService;
+use App\Interfaces\GameSimulationInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -31,9 +31,9 @@ class Game extends Model
 
     public function simulate(): void
     {
-        $service = new GameSimulationService($this->home, $this->away);
+        $service = app()->make(GameSimulationInterface::class);
 
-        [$home_score, $away_score] = $service->simulate();
+        [$home_score, $away_score] = $service->simulate($this->home, $this->away);
 
         $this->update([
             'home_score' => $home_score, 

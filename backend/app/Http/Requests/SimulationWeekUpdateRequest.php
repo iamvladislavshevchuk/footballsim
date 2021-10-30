@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * @property Simulation $simulation
  * @property integer $week
  */
-class SimulationWeekRequest extends FormRequest
+class SimulationWeekUpdateRequest extends FormRequest
 {
     public function authorize()
     {

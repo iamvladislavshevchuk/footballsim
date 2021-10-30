@@ -4,13 +4,14 @@ namespace Tests\Unit;
 
 use App\Models\Simulation;
 use App\Models\Team;
+use App\Services\Fixture\RoundRobinFixtureService;
 use App\Services\FixtureService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
-class FixtureTest extends TestCase
+class RoundRobinFixtureTest extends TestCase
 {
     use RefreshDatabase;
     
@@ -39,9 +40,10 @@ class FixtureTest extends TestCase
 
     protected function makeFixture(int $teamsCount)
     {
+        $service = new RoundRobinFixtureService();
         $simulation = Simulation::create();
         $teams = Team::factory()->for($simulation)->count($teamsCount)->create();
-        return (new FixtureService())->generate($teams);
+        return $service->generate($teams);
     }
 
     protected function assertGamesCount(Collection $fixture, int $expected)
